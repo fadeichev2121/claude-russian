@@ -256,16 +256,39 @@ def tools_available():
 
 
 def require_closed(*apps):
-    result = subprocess.run(["ps", "-axo", "pid=,command="], capture_output=True, text=True)
+    # command= includes arguments: an unrelated process can merely mention
+    # the bundle. Inspect the executable, retaining comm= as a fallback.
+    result = subprocess.run(["/bin/ps", "-axww", "-o", "pid=,comm="], capture_output=True, text=True)
     if result.returncode:
         raise RuntimeError("Не удалось определить, закрыт ли Claude. Подготовка остановлена.")
+    try:
+        libproc = ctypes.CDLL("/usr/lib/libproc.dylib", use_errno=True)
+        pidpath = libproc.proc_pidpath
+        pidpath.argtypes = [ctypes.c_int, ctypes.c_void_p, ctypes.c_uint32]
+        pidpath.restype = ctypes.c_int
+    except (OSError, AttributeError) as error:
+        raise RuntimeError("Не удалось определить исполняемые файлы процессов Claude. Подготовка остановлена.") from error
     prefixes = {str(app) + "/Contents/" for app in apps}
+    # Chrome keeps this bridge alive after Cmd+Q. It does not run Claude's
+    # interface; original bundles are preserved during install and restore.
+    browser_bridges = {str(app / "Contents/Helpers/chrome-native-host") for app in apps}
     for line in result.stdout.splitlines():
         parts = line.strip().split(None, 1)
         if len(parts) != 2 or parts[0] == str(os.getpid()):
             continue
-        if any(prefix in parts[1] for prefix in prefixes):
-            raise RuntimeError("Сначала полностью закрой Claude через Cmd+Q, затем повтори команду.")
+        if not parts[0].isdigit():
+            continue
+        pid = int(parts[0])
+        buffer = ctypes.create_string_buffer(4096)
+        length = pidpath(pid, buffer, len(buffer))
+        executable = os.fsdecode(buffer.value) if length > 0 else parts[1]
+        # Only the kernel executable path grants the bridge exception.
+        # comm= may come from argv[0], so fallback can only block a process.
+        if length > 0 and executable in browser_bridges:
+            continue
+        if any(executable.startswith(prefix) for prefix in prefixes):
+            name = Path(executable).name
+            raise RuntimeError("Claude ещё использует процесс «" + name + "» (PID " + str(pid) + "). Полностью закрой Claude через Cmd+Q, затем повтори команду.")
 
 
 def entitlements(target):
