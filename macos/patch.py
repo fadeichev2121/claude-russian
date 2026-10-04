@@ -22,6 +22,7 @@ import stat
 import struct
 import subprocess
 import tempfile
+import time
 from datetime import datetime, timezone
 import uuid
 from contextlib import contextmanager
@@ -258,9 +259,6 @@ def tools_available():
 def require_closed(*apps):
     # command= includes arguments: an unrelated process can merely mention
     # the bundle. Inspect the executable, retaining comm= as a fallback.
-    result = subprocess.run(["/bin/ps", "-axww", "-o", "pid=,comm="], capture_output=True, text=True)
-    if result.returncode:
-        raise RuntimeError("Не удалось определить, закрыт ли Claude. Подготовка остановлена.")
     try:
         libproc = ctypes.CDLL("/usr/lib/libproc.dylib", use_errno=True)
         pidpath = libproc.proc_pidpath
@@ -272,23 +270,50 @@ def require_closed(*apps):
     # Chrome keeps this bridge alive after Cmd+Q. It does not run Claude's
     # interface; original bundles are preserved during install and restore.
     browser_bridges = {str(app / "Contents/Helpers/chrome-native-host") for app in apps}
-    for line in result.stdout.splitlines():
-        parts = line.strip().split(None, 1)
-        if len(parts) != 2 or parts[0] == str(os.getpid()):
-            continue
-        if not parts[0].isdigit():
-            continue
-        pid = int(parts[0])
-        buffer = ctypes.create_string_buffer(4096)
-        length = pidpath(pid, buffer, len(buffer))
-        executable = os.fsdecode(buffer.value) if length > 0 else parts[1]
-        # Only the kernel executable path grants the bridge exception.
-        # comm= may come from argv[0], so fallback can only block a process.
-        if length > 0 and executable in browser_bridges:
-            continue
-        if any(executable.startswith(prefix) for prefix in prefixes):
+    updater_paths = {
+        str(app / "Contents/Frameworks/Squirrel.framework/Versions" / version / "Resources/ShipIt")
+        for app in apps for version in ("A", "Current")
+    }
+    deadline = None
+    while True:
+        result = subprocess.run(["/bin/ps", "-axww", "-o", "pid=,comm="], capture_output=True, text=True)
+        if result.returncode:
+            raise RuntimeError("Не удалось определить, закрыт ли Claude. Подготовка остановлена.")
+        updater_pids = []
+        for line in result.stdout.splitlines():
+            parts = line.strip().split(None, 1)
+            if len(parts) != 2 or parts[0] == str(os.getpid()):
+                continue
+            if not parts[0].isdigit():
+                continue
+            pid = int(parts[0])
+            buffer = ctypes.create_string_buffer(4096)
+            length = pidpath(pid, buffer, len(buffer))
+            executable = os.fsdecode(buffer.value) if length > 0 else parts[1]
+            # Only the kernel executable path grants the bridge exception
+            # or identifies an updater. comm= may come from argv[0].
+            if length > 0 and executable in browser_bridges:
+                continue
+            if not any(executable.startswith(prefix) for prefix in prefixes):
+                continue
+            if length > 0 and executable in updater_paths:
+                updater_pids.append(pid)
+                continue
             name = Path(executable).name
             raise RuntimeError("Claude ещё использует процесс «" + name + "» (PID " + str(pid) + "). Полностью закрой Claude через Cmd+Q, затем повтори команду.")
+        if not updater_pids:
+            if deadline is not None:
+                print("[i] Модуль обновления Claude завершил работу. Продолжаю.", flush=True)
+            return
+        if deadline is None:
+            deadline = time.monotonic() + 30
+            print("[i] Claude закрыт, но фоновый модуль обновления ShipIt ещё работает. Жду завершения до 30 секунд…", flush=True)
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            pids = ", ".join(str(pid) for pid in updater_pids)
+            raise RuntimeError("Модуль обновления Claude ShipIt ещё работает (PID " + pids + "). Дождись завершения обновления, затем повтори выбранный пункт меню. Приложение не изменено этой операцией.")
+        # Scan every process again: ShipIt can spawn a new updater PID.
+        time.sleep(min(1, remaining))
 
 
 def entitlements(target):
@@ -453,6 +478,8 @@ def install(args, source, state_dir, uid, gid):
         raise RuntimeError("Нужно согласие --approve-local-signature: оригинальный Claude получит локальную подпись и исключение проверки библиотек. Возможен повторный вход и запрос системных разрешений.")
     if not source.is_dir():
         raise RuntimeError("Claude.app не найден: " + str(source))
+    tools_available()
+    require_closed(source)
     info_path = source / "Contents/Info.plist"
     archive_path = source / "Contents/Resources/app.asar"
     no_symlink_components(info_path)
@@ -465,8 +492,6 @@ def install(args, source, state_dir, uid, gid):
     source_data = archive_path.read_bytes()
     if sha(source_data) != SOURCE_HASH:
         raise RuntimeError("Архив другой сборки Claude. Установка остановлена до изменения приложения.")
-    tools_available()
-    require_closed(source)
     if not os.access(source.parent, os.W_OK):
         raise RuntimeError("Нет права изменять каталог приложения. Повтори установку через sudo.")
     dictionary = json.loads((PACKAGE / "ru.json").read_text(encoding="utf-8"))
