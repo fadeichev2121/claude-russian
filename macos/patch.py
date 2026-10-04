@@ -31,20 +31,9 @@ from asar import Asar
 from catalog import compile_catalog
 
 PACKAGE = Path(__file__).resolve().parent
-# Compatibility is pinned to both the release version and its original ASAR.
-# Existing schema-2 state files retain their own version/hash for restoration.
-PROFILES = {
-    "1.46388.4": {
-        "source_asar_sha256": "c48a2abd9aeba23843a09f2d5e1ce9207f2bebe9af014ff9ccd70862b136e9d7",
-        "preloads": (".vite/build/mainView.js", ".vite/build/mainWindow.js"),
-        "native_dictionary_policy": "exact",
-    },
-    "2.19675.0": {
-        "source_asar_sha256": "817767bfbad77ea60678e22df90baba2cbabba9dda90201c65a49f0176fc7306",
-        "preloads": (".vite/build/mainView.js", ".vite/build/mainWindow.js"),
-        "native_dictionary_policy": "intersection",
-    },
-}
+# Every supported version retains its original ASAR pin. Profiles are kept
+# independently of the patcher so adding releases never changes old state.
+PROFILES = json.loads((PACKAGE / "profiles.json").read_text(encoding="utf-8"))
 MAGIC = {
     b"\xfe\xed\xfa\xce", b"\xfe\xed\xfa\xcf", b"\xce\xfa\xed\xfe", b"\xcf\xfa\xed\xfe",
     b"\xca\xfe\xba\xbe", b"\xbe\xba\xfe\xca", b"\xca\xfe\xba\xbf", b"\xbf\xba\xfe\xca",

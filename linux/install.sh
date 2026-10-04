@@ -152,7 +152,8 @@ try:
     manifest = json.loads((destination / 'manifest.json').read_text(encoding='utf-8'))
     if manifest.get('repository') != 'claude-russian' or manifest.get('format') != 1:
         raise SystemExit('Ошибка: загружен пакет другого проекта или неподдерживаемого формата.')
-    for name in ('portable/patch.py', 'portable/profiles.json', 'portable/pe_integrity.py',
+    for name in ('portable/patch.py', 'portable/profiles.json', 'portable/windows-profiles.json',
+                 'portable/linux-profiles.json', 'portable/pe_integrity.py',
                  'macos/asar.py', 'macos/catalog.py', 'macos/ru.json',
                  'macos/native-ru.json', 'macos/ui-runtime.js',
                  'linux/install.sh', 'windows/install.ps1'):

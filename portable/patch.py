@@ -132,7 +132,28 @@ def save_state(directory, state, uid, gid):
 
 
 def profiles():
-    return json.loads((ROOT / 'portable/profiles.json').read_text(encoding='utf-8'))
+    result = {}
+    for filename in ('profiles.json', 'windows-profiles.json', 'linux-profiles.json'):
+        values = json.loads((ROOT / 'portable' / filename).read_text(encoding='utf-8'))
+        if not isinstance(values, dict):
+            raise RuntimeError('Некорректный список совместимых сборок: ' + filename)
+        for key, profile in values.items():
+            if not isinstance(profile, dict):
+                raise RuntimeError('Некорректный профиль сборки: ' + str(key))
+            system, arch, version = profile.get('platform'), profile.get('arch'), profile.get('version')
+            allowed_arches = {'windows': {'x64', 'arm64'}, 'linux': {'amd64', 'arm64'}}
+            if (system not in allowed_arches or arch not in allowed_arches[system]
+                    or not isinstance(version, str) or not re.fullmatch(r'\d+\.\d+\.\d+', version)
+                    or key != system + '-' + arch + '-' + version
+                    or profile.get('preloads') != ['.vite/build/mainView.js', '.vite/build/mainWindow.js']):
+                raise RuntimeError('Некорректная версия или структура профиля: ' + str(key))
+            fields = ['asar_sha256', 'native_sha256'] + (['exe_sha256'] if system == 'windows' else [])
+            if any(not isinstance(profile.get(field), str) or not re.fullmatch(r'[a-f0-9]{64}', profile[field]) for field in fields):
+                raise RuntimeError('Некорректные контрольные суммы профиля: ' + key)
+            if key in result and result[key] != profile:
+                raise RuntimeError('Профили одной сборки различаются: ' + key)
+            result[key] = profile
+    return result
 
 
 def load_state(directory, uid, app=None):

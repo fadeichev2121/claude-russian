@@ -126,7 +126,7 @@ with tarfile.open(archive, "r:gz") as source:
 manifest = json.loads((destination / "manifest.json").read_text(encoding="utf-8"))
 if manifest.get("repository") != repo or manifest.get("format") != 1:
     raise SystemExit("Ошибка: загружен пакет другого проекта.")
-for name in ("install.sh", "macos/patch.py", "macos/ru.json", "macos/ui-runtime.js"):
+for name in ("install.sh", "macos/patch.py", "macos/profiles.json", "macos/ru.json", "macos/ui-runtime.js"):
     if not (destination / name).is_file():
         raise SystemExit("Ошибка: в пакете не хватает файлов.")
 PYEXTRACT

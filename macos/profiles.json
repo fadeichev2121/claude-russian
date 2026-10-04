@@ -1,0 +1,50 @@
+{
+  "2.19675.0": {
+    "source_asar_sha256": "817767bfbad77ea60678e22df90baba2cbabba9dda90201c65a49f0176fc7306",
+    "preloads": [
+      ".vite/build/mainView.js",
+      ".vite/build/mainWindow.js"
+    ],
+    "native_dictionary_policy": "intersection"
+  },
+  "2.16120.0": {
+    "source_asar_sha256": "dae73ff069ff62bf3bfc38ae2d375e68dc96c9bc5d2484c5d6e6c995c94bd5c9",
+    "preloads": [
+      ".vite/build/mainView.js",
+      ".vite/build/mainWindow.js"
+    ],
+    "native_dictionary_policy": "intersection"
+  },
+  "2.9939.4": {
+    "source_asar_sha256": "97056384fe0edbca085baf16e0860ef65d61488cbbe2f31134051f647aaf5a92",
+    "preloads": [
+      ".vite/build/mainView.js",
+      ".vite/build/mainWindow.js"
+    ],
+    "native_dictionary_policy": "intersection"
+  },
+  "2.9939.2": {
+    "source_asar_sha256": "fe0c6d44b118a8ea436d3c3f539dcd31008e6f8f1d2568fc9ef84e860e33d24d",
+    "preloads": [
+      ".vite/build/mainView.js",
+      ".vite/build/mainWindow.js"
+    ],
+    "native_dictionary_policy": "intersection"
+  },
+  "2.7032.0": {
+    "source_asar_sha256": "60d7d5fc4dfc772ca22dbb5e4953f98cf3787f6441561b18c53e84cb4ae82a4d",
+    "preloads": [
+      ".vite/build/mainView.js",
+      ".vite/build/mainWindow.js"
+    ],
+    "native_dictionary_policy": "intersection"
+  },
+  "1.46388.4": {
+    "source_asar_sha256": "c48a2abd9aeba23843a09f2d5e1ce9207f2bebe9af014ff9ccd70862b136e9d7",
+    "preloads": [
+      ".vite/build/mainView.js",
+      ".vite/build/mainWindow.js"
+    ],
+    "native_dictionary_policy": "exact"
+  }
+}

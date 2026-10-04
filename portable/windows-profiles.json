@@ -1,0 +1,98 @@
+{
+  "windows-x64-2.16120.0": {
+    "version": "2.16120.0",
+    "asar_sha256": "8bcea5e3a2fd50dd0201386f8965e6c6d4b398a8ea49d6e33ffbdaef3c310961",
+    "native_sha256": "57249f660877d1943b5722a5dd1369152af8d6a8000ad993c1e399811860b4f6",
+    "preloads": [
+      ".vite/build/mainView.js",
+      ".vite/build/mainWindow.js"
+    ],
+    "exe_sha256": "bd09b14c5d90bdb04a824e1ace10ed2a554dd5bfc0300c772621e71578f0a65e",
+    "platform": "windows",
+    "arch": "x64"
+  },
+  "windows-x64-2.9939.4": {
+    "version": "2.9939.4",
+    "asar_sha256": "d974c55e392c10ec468950f76d4f78de8c71a39985779dfd9706f9a569e4b6f3",
+    "native_sha256": "28704b86be87c6d093b5fc1890f1437f046994ab7214aafe90e7b8c172841e46",
+    "preloads": [
+      ".vite/build/mainView.js",
+      ".vite/build/mainWindow.js"
+    ],
+    "exe_sha256": "67360e77295673fcde817fba3e24ce3a3f3d0d56d4a3c823eded095f2c4384e9",
+    "platform": "windows",
+    "arch": "x64"
+  },
+  "windows-x64-2.9939.2": {
+    "version": "2.9939.2",
+    "asar_sha256": "983cfaed9051d3e7b3b8f7fcd609b79ed31ea843635c636581d9ad81434ea3b3",
+    "native_sha256": "28704b86be87c6d093b5fc1890f1437f046994ab7214aafe90e7b8c172841e46",
+    "preloads": [
+      ".vite/build/mainView.js",
+      ".vite/build/mainWindow.js"
+    ],
+    "exe_sha256": "003561859d16371a8f2d79f65b5346e574875e9176b22b7ca95154891cc187ba",
+    "platform": "windows",
+    "arch": "x64"
+  },
+  "windows-x64-2.7032.0": {
+    "platform": "windows",
+    "arch": "x64",
+    "version": "2.7032.0",
+    "asar_sha256": "9b643fd99459803138cf3f77df498f4fe5a2bc6ada0cdab9268d14e8cc8b7874",
+    "native_sha256": "c55b87de3b38cecd7f48bbb135cb4ce42322ac98df6e4f9cef25f5c8a1c5b179",
+    "preloads": [
+      ".vite/build/mainView.js",
+      ".vite/build/mainWindow.js"
+    ],
+    "exe_sha256": "b64e02ab281eb46957f3edbe8354871339212fb8ae8fcb0c5c0b354253d95a30"
+  },
+  "windows-arm64-2.16120.0": {
+    "platform": "windows",
+    "arch": "arm64",
+    "version": "2.16120.0",
+    "asar_sha256": "d25ac1162f55e8135251ac9e1f565e3ea1ec08d7b773c8f244c610ff5f3fe9b4",
+    "native_sha256": "57249f660877d1943b5722a5dd1369152af8d6a8000ad993c1e399811860b4f6",
+    "preloads": [
+      ".vite/build/mainView.js",
+      ".vite/build/mainWindow.js"
+    ],
+    "exe_sha256": "bee9f36ed4e9f4ff57655ef7934da785b880badd8da18cd33ef6aaa20d080933"
+  },
+  "windows-arm64-2.9939.4": {
+    "platform": "windows",
+    "arch": "arm64",
+    "version": "2.9939.4",
+    "asar_sha256": "12b06af9d699f1d30c376ea721ecde10c552f04210f72b2fa846028f3673ed7f",
+    "native_sha256": "28704b86be87c6d093b5fc1890f1437f046994ab7214aafe90e7b8c172841e46",
+    "preloads": [
+      ".vite/build/mainView.js",
+      ".vite/build/mainWindow.js"
+    ],
+    "exe_sha256": "11bc142505d9fa5bc3e3384a2bbafd95d874b5ac9e3b12eac27c0c76f5886c85"
+  },
+  "windows-arm64-2.9939.2": {
+    "platform": "windows",
+    "arch": "arm64",
+    "version": "2.9939.2",
+    "asar_sha256": "8a6fe1b73afb20e1bb520c01f059dddef5da4dce36724f3a44c12433c64653e7",
+    "native_sha256": "28704b86be87c6d093b5fc1890f1437f046994ab7214aafe90e7b8c172841e46",
+    "preloads": [
+      ".vite/build/mainView.js",
+      ".vite/build/mainWindow.js"
+    ],
+    "exe_sha256": "c1673e2559ef77b775b07ba3afcf81983a2d1cb87d2118fec50a88f83f1d624b"
+  },
+  "windows-arm64-2.7032.0": {
+    "platform": "windows",
+    "arch": "arm64",
+    "version": "2.7032.0",
+    "asar_sha256": "583ecf5d4c78c5a18eb59fb67d3a4f73daf490b954d546d76ce11ce00afc4b12",
+    "native_sha256": "c55b87de3b38cecd7f48bbb135cb4ce42322ac98df6e4f9cef25f5c8a1c5b179",
+    "preloads": [
+      ".vite/build/mainView.js",
+      ".vite/build/mainWindow.js"
+    ],
+    "exe_sha256": "27072fea8ba874e6bd4b6c556700288ef2a1f353a845572a7db3c5db4220324b"
+  }
+}
