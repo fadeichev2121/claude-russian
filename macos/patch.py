@@ -31,13 +31,33 @@ from asar import Asar
 from catalog import compile_catalog
 
 PACKAGE = Path(__file__).resolve().parent
-VERSION = "1.46388.4"
-SOURCE_HASH = "c48a2abd9aeba23843a09f2d5e1ce9207f2bebe9af014ff9ccd70862b136e9d7"
-PRELOADS = [".vite/build/mainView.js", ".vite/build/mainWindow.js"]
+# Compatibility is pinned to both the release version and its original ASAR.
+# Existing schema-2 state files retain their own version/hash for restoration.
+PROFILES = {
+    "1.46388.4": {
+        "source_asar_sha256": "c48a2abd9aeba23843a09f2d5e1ce9207f2bebe9af014ff9ccd70862b136e9d7",
+        "preloads": (".vite/build/mainView.js", ".vite/build/mainWindow.js"),
+        "native_dictionary_policy": "exact",
+    },
+    "2.19675.0": {
+        "source_asar_sha256": "817767bfbad77ea60678e22df90baba2cbabba9dda90201c65a49f0176fc7306",
+        "preloads": (".vite/build/mainView.js", ".vite/build/mainWindow.js"),
+        "native_dictionary_policy": "intersection",
+    },
+}
 MAGIC = {
     b"\xfe\xed\xfa\xce", b"\xfe\xed\xfa\xcf", b"\xce\xfa\xed\xfe", b"\xcf\xfa\xed\xfe",
     b"\xca\xfe\xba\xbe", b"\xbe\xba\xfe\xca", b"\xca\xfe\xba\xbf", b"\xbf\xba\xfe\xca",
 }
+
+
+def source_profile(version, source_hash):
+    if not isinstance(version, str) or version not in PROFILES:
+        raise RuntimeError("Версия " + str(version) + " несовместима. Поддерживаются Claude " + ", ".join(PROFILES) + ".")
+    profile = PROFILES[version]
+    if source_hash != profile["source_asar_sha256"]:
+        raise RuntimeError("Архив другой сборки Claude " + version + ". Установка остановлена до изменения приложения.")
+    return profile
 
 
 def user_identity():
@@ -154,14 +174,15 @@ def read_state(state_dir, uid, source):
             raise RuntimeError("Файл состояния превышает 128 КБ.")
         state = json.loads(raw)
     if (not isinstance(state, dict) or type(state.get("schema")) is not int or state["schema"] != 2
-            or state.get("product") != "claude-russian" or state.get("version") != VERSION
+            or state.get("product") != "claude-russian"
+            or not isinstance(state.get("version"), str) or state["version"] not in PROFILES
             or state.get("phase") not in {"prepared", "installed", "restoring", "restored"}):
         raise RuntimeError("Неизвестный формат состояния; приложение не изменено.")
     for field in ("source_asar_sha256", "original_manifest_sha256", "patched_manifest_sha256"):
         value = state.get(field)
         if not isinstance(value, str) or not re.fullmatch(r"[a-f0-9]{64}", value):
             raise RuntimeError("Некорректный SHA256 в состоянии: " + field)
-    if state["source_asar_sha256"] != SOURCE_HASH:
+    if state["source_asar_sha256"] != PROFILES[state["version"]]["source_asar_sha256"]:
         raise RuntimeError("Состояние относится к другой сборке Claude.")
     if recorded_path(state.get("app"), "app") != source:
         raise RuntimeError("Путь --app не совпадает с сохранённой установкой. Укажи тот же путь, что при установке.")
@@ -438,7 +459,7 @@ def load_manifest(state, kind, uid):
     data = json.loads(raw)
     if not isinstance(data, dict) or not data:
         raise RuntimeError("Некорректный список контрольных сумм.")
-    if kind == "original" and data.get("Contents/Resources/app.asar", {}).get("sha256") != SOURCE_HASH:
+    if kind == "original" and data.get("Contents/Resources/app.asar", {}).get("sha256") != state["source_asar_sha256"]:
         raise RuntimeError("Резервная копия относится к другой сборке.")
     return data
 
@@ -487,27 +508,29 @@ def install(args, source, state_dir, uid, gid):
     source_info_bytes = info_path.read_bytes()
     info = plistlib.loads(source_info_bytes)
     version = info.get("CFBundleShortVersionString", "неизвестна")
-    if version != VERSION:
-        raise RuntimeError("Версия " + str(version) + " несовместима. Поддерживается только Claude " + VERSION + ".")
+    if not isinstance(version, str) or version not in PROFILES:
+        raise RuntimeError("Версия " + str(version) + " несовместима. Поддерживаются Claude " + ", ".join(PROFILES) + ".")
     source_data = archive_path.read_bytes()
-    if sha(source_data) != SOURCE_HASH:
-        raise RuntimeError("Архив другой сборки Claude. Установка остановлена до изменения приложения.")
+    source_hash = sha(source_data)
+    profile = source_profile(version, source_hash)
     if not os.access(source.parent, os.W_OK):
         raise RuntimeError("Нет права изменять каталог приложения. Повтори установку через sudo.")
     dictionary = json.loads((PACKAGE / "ru.json").read_text(encoding="utf-8"))
     native = json.loads((PACKAGE / "native-ru.json").read_text(encoding="utf-8"))
     if not dictionary or not all(isinstance(key, str) and isinstance(value, str) for key, value in dictionary.items()):
         raise RuntimeError("Некорректный словарь интерфейса.")
+    if not isinstance(native, dict) or not native or not all(isinstance(key, str) and isinstance(value, str) for key, value in native.items()):
+        raise RuntimeError("Некорректный нативный словарь интерфейса.")
     asar = Asar(source_data)
     exact, templates = compile_catalog(dictionary)
     runtime = (PACKAGE / "ui-runtime.js").read_text(encoding="utf-8")
     runtime = runtime.replace("__RU_DICTIONARY__", json.dumps(exact, ensure_ascii=False))
     runtime = runtime.replace("__RU_TEMPLATES__", json.dumps(templates, ensure_ascii=False))
-    changes = {name: asar.read(name) + b"\n;\n// Claude RU interface translator v3\n" + runtime.encode("utf-8") + b"\n" for name in PRELOADS}
+    changes = {name: asar.read(name) + b"\n;\n// Claude RU interface translator v3\n" + runtime.encode("utf-8") + b"\n" for name in profile["preloads"]}
     patched, header_hash = asar.replace(changes)
     source_metadata = source.stat()
     original = manifest(source)
-    if (original.get("Contents/Resources/app.asar", {}).get("sha256") != SOURCE_HASH
+    if (original.get("Contents/Resources/app.asar", {}).get("sha256") != source_hash
             or original.get("Contents/Info.plist", {}).get("sha256") != sha(source_info_bytes)):
         raise RuntimeError("Claude обновился во время подготовки. Установка остановлена до резервного копирования и изменения приложения.")
     identity = uuid.uuid4().hex
@@ -529,10 +552,14 @@ def install(args, source, state_dir, uid, gid):
         (copy / "Contents/Info.plist").write_bytes(plistlib.dumps(info, fmt=plistlib.FMT_XML, sort_keys=False))
         native_path = copy / "Contents/Resources/en-US.json"
         original_native = json.loads(native_path.read_text(encoding="utf-8"))
-        for key, value in native.items():
-            if key not in original_native or not isinstance(value, str):
-                raise RuntimeError("Некорректная запись нативного словаря.")
-            original_native[key] = value
+        if not isinstance(original_native, dict) or not all(isinstance(key, str) and isinstance(value, str) for key, value in original_native.items()):
+            raise RuntimeError("Некорректный исходный нативный словарь.")
+        if profile["native_dictionary_policy"] == "exact" and not set(native).issubset(original_native):
+            raise RuntimeError("Некорректная запись нативного словаря.")
+        # New releases can remove native IDs. Keep unknown/new entries intact;
+        # only apply translations to IDs present in this pinned source build.
+        native_updates = {key: value for key, value in native.items() if key in original_native}
+        original_native.update(native_updates)
         native_path.write_text(json.dumps(original_native, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         print("Подготавливаю перевод и локальную подпись…", flush=True)
         signed = sign_copy(copy, scratch)
@@ -541,15 +568,16 @@ def install(args, source, state_dir, uid, gid):
         original_file = state_dir / ("original-" + identity + ".json")
         patched_file = state_dir / ("patched-" + identity + ".json")
         state = {
-            "schema": 2, "product": "claude-russian", "phase": "prepared", "version": VERSION,
+            "schema": 2, "product": "claude-russian", "phase": "prepared", "version": version,
             "app": str(source), "backup": str(backup), "transaction_dir": str(transaction),
             "preserved_original": str(transaction / "original.app"),
             "original_uid": source_metadata.st_uid, "original_gid": source_metadata.st_gid,
             "original_manifest": str(original_file), "patched_manifest": str(patched_file),
-            "source_asar_sha256": SOURCE_HASH,
+            "source_asar_sha256": source_hash,
             "original_manifest_sha256": save_manifest(original_file, original, uid, gid),
             "patched_manifest_sha256": save_manifest(patched_file, patched_manifest, uid, gid),
-            "dictionary_entries": len(dictionary), "native_entries": len(native), "signed_targets": signed,
+            "dictionary_entries": len(dictionary), "native_entries": len(native_updates), "signed_targets": signed,
+            "native_catalog_entries": len(native), "native_skipped_entries": len(native) - len(native_updates),
             "installed_at": datetime.now(timezone.utc).isoformat(), "signature": "local ad-hoc",
             "library_validation_exception": True, "launched": False, "ui_verified": False,
         }
@@ -584,10 +612,10 @@ def describe_compatibility(source):
     digest = file_hash(archive_path)
     print("Найденная версия: " + str(version))
     print("SHA256 архива: " + digest)
-    if version == VERSION and digest == SOURCE_HASH:
+    if isinstance(version, str) and version in PROFILES and digest == PROFILES[version]["source_asar_sha256"]:
         print("[OK] Совместимая исходная версия и сборка.")
-    elif version != VERSION:
-        print("[i] Несовместимая версия. Поддерживается только Claude " + VERSION + ".")
+    elif not isinstance(version, str) or version not in PROFILES:
+        print("[i] Несовместимая версия. Поддерживаются Claude " + ", ".join(PROFILES) + ".")
     else:
         print("[i] Архив отличается от исходного: возможны установленный патч или другая сборка.")
 

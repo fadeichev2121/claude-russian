@@ -1,9 +1,13 @@
 {
   "format": 1,
   "repository": "claude-russian",
-  "package_version": "1.0.2",
-  "platform": "macOS",
-  "app_version": "1.46388.4",
+  "package_version": "1.1.0",
+  "platforms": {
+    "macOS": ["1.46388.4", "2.19675.0"],
+    "Windows": {"version": "2.19675.0", "architectures": ["x64", "arm64"], "installation": "EXE/Squirrel"},
+    "Linux": {"version": "2.9939.4", "architectures": ["amd64", "arm64"], "installation": "official DEB"}
+  },
   "dictionary_entries": 3608,
-  "native_entries": 642
+  "native_catalog_entries": 642,
+  "execution_verified": false
 }

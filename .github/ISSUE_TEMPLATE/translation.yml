@@ -6,6 +6,16 @@ body:
   - type: markdown
     attributes:
       value: "Не публикуй пароли, ключи, почту, личные чаты и другие личные данные. Скрой их на снимке экрана."
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Система
+      options:
+        - macOS
+        - Windows EXE
+        - Linux DEB
+    validations:
+      required: true
   - type: input
     id: app_version
     attributes:
