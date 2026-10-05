@@ -1,12 +1,14 @@
 ﻿# MIT License. PowerShell 5.1; save this file as UTF-8 with BOM.
 [CmdletBinding()]
 param(
-    [ValidateSet('menu', 'install', 'status', 'restore')]
+    [ValidateSet('menu', 'install', 'status', 'restore', 'auto-enable', 'auto-disable', 'auto-status', 'auto-check')]
     [string]$Action = 'menu',
     [Alias('app')]
     [string]$AppPath,
     [Alias('state-dir')]
     [string]$StateDirectory,
+    [Alias('control-dir')]
+    [string]$ControlDirectory,
     [switch]$ApproveExeSignature,
     [switch]$Help
 )
@@ -25,10 +27,14 @@ function Show-Usage {
   .\install.ps1 install               — установить перевод
   .\install.ps1 status                — статус / совместимость
   .\install.ps1 restore               — восстановить исходные файлы
+  .\install.ps1 auto-enable           — включить автовосстановление
+  .\install.ps1 auto-disable          — выключить автовосстановление
+  .\install.ps1 auto-status           — состояние автовосстановления
+  .\install.ps1 auto-check            — проверить обновление сейчас
   .\install.ps1 status -AppPath ПАПКА  — указать папку приложения
   .\install.ps1 -Help                 — справка
 
-Параметры: -AppPath ПАПКА, -StateDirectory ПАПКА.
+Параметры: -AppPath ПАПКА, -StateDirectory ПАПКА, -ControlDirectory ПАПКА (автовосстановление).
 -ApproveExeSignature — явное согласие на изменение подписи EXE без вопроса; только для осознанного автоматизированного запуска.
 Нужны Windows, PowerShell 5.1+ и Python 3.9+.
 Поддерживается обычная установка EXE; MSIX / WindowsApps не поддерживаются.
@@ -196,7 +202,8 @@ try:
                  'portable/linux-profiles.json', 'portable/pe_integrity.py',
                  'macos/asar.py', 'macos/catalog.py', 'macos/ru.json',
                  'macos/native-ru.json', 'macos/ui-runtime.js',
-                 'linux/install.sh', 'windows/install.ps1'):
+                 'linux/install.sh', 'windows/install.ps1', 'updater/manager.py',
+                 'updater/adapter.py', 'updater/package.py', 'updater/service.py'):
         if not (destination / name).is_file():
             raise SystemExit('Ошибка: в пакете не хватает файлов.')
     retained = support / 'packages' / temporary.name
@@ -212,7 +219,45 @@ finally:
     return [string]$result[0]
 }
 
+function Invoke-AutoAction([string]$Operation) {
+    $arguments = @($script:Manager, $Operation)
+    if ($script:AppPath) { $arguments += @('--app', [System.IO.Path]::GetFullPath($script:AppPath)) }
+    if ($script:StateDirectory) { $arguments += @('--state-dir', [System.IO.Path]::GetFullPath($script:StateDirectory)) }
+    if ($script:ControlDirectory) { $arguments += @('--control-dir', [System.IO.Path]::GetFullPath($script:ControlDirectory)) }
+    if ($Operation -eq 'enable') {
+        Write-Host ''
+        Write-Host 'Автовосстановление будет проверять Claude каждые 2 минуты, только после выхода из приложения.'
+        Write-Host 'Применение перевода к новым поддерживаемым сборкам делает подпись Authenticode Anthropic недействительной.'
+        Write-Host 'Исходные файлы каждой сборки будут сохраняться отдельно для отката.'
+        if (-not $ApproveExeSignature) {
+            if ([Console]::IsInputRedirected) {
+                Write-Host '[Ошибка] Для согласия запусти включение в интерактивном терминале.'
+                return 1
+            }
+            $answer = Read-Host 'Включить автовосстановление с этими изменениями? Введи «да» или «нет»'
+            if ($answer.Trim().ToLowerInvariant() -notin @('да', 'yes', 'y')) {
+                Write-Host '[i] Включение отменено.'
+                return 0
+            }
+        }
+        $arguments += '--approve-signature'
+    }
+    # A task uses this user's rights; neither enable nor background checks elevate.
+    & $script:Python @arguments | Out-Host
+    return $LASTEXITCODE
+}
+
 function Invoke-PatchAction([string]$Operation) {
+    switch ($Operation) {
+        'auto-enable' { return (Invoke-AutoAction 'enable') }
+        'auto-disable' { return (Invoke-AutoAction 'disable') }
+        'auto-status' { return (Invoke-AutoAction 'status') }
+        'auto-check' { return (Invoke-AutoAction 'check') }
+        'restore' {
+            $restoreResult = Invoke-AutoAction 'restore'
+            if ($restoreResult -ne 3) { return $restoreResult }
+        }
+    }
     $arguments = @($script:Patch, $Operation)
     if ($script:AppPath) {
         $arguments += @('--app', [System.IO.Path]::GetFullPath($script:AppPath))
@@ -263,6 +308,7 @@ try {
         throw 'Установщик и пакет относятся к разным проектам или формат пакета не поддерживается.'
     }
     $script:Patch = Join-Path $packageRoot 'portable\patch.py'
+    $script:Manager = Join-Path $packageRoot 'updater\manager.py'
     if ($Action -ne 'menu') {
         $result = Invoke-PatchAction $Action
         exit $result
@@ -276,14 +322,22 @@ try {
         Write-Host ' 1) Установить русский интерфейс'
         Write-Host ' 2) Статус / совместимость'
         Write-Host ' 3) Откат'
+        Write-Host ' 4) Включить автовосстановление после обновлений'
+        Write-Host ' 5) Выключить автовосстановление'
+        Write-Host ' 6) Статус автовосстановления'
+        Write-Host ' 7) Проверить обновление сейчас'
         Write-Host ' 0) Выход'
         $choice = Read-Host 'Выбор'
         switch ($choice) {
             '1' { $result = Invoke-PatchAction 'install' }
             '2' { $result = Invoke-PatchAction 'status' }
             '3' { $result = Invoke-PatchAction 'restore' }
+            '4' { $result = Invoke-PatchAction 'auto-enable' }
+            '5' { $result = Invoke-PatchAction 'auto-disable' }
+            '6' { $result = Invoke-PatchAction 'auto-status' }
+            '7' { $result = Invoke-PatchAction 'auto-check' }
             '0' { exit 0 }
-            default { Write-Host '[Ошибка] Выбери 1, 2, 3 или 0.' }
+            default { Write-Host '[Ошибка] Выбери пункт от 0 до 7.' }
         }
     }
 } catch {

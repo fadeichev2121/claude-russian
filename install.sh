@@ -20,6 +20,10 @@ usage() {
   bash $SCRIPT_NAME install   — установить перевод
   bash $SCRIPT_NAME status    — статус и совместимость
   bash $SCRIPT_NAME restore   — откат
+  bash $SCRIPT_NAME auto-enable  — включить автовосстановление после обновлений
+  bash $SCRIPT_NAME auto-disable — выключить автовосстановление
+  bash $SCRIPT_NAME auto-status  — состояние автовосстановления
+  bash $SCRIPT_NAME auto-check   — проверить обновление сейчас
   bash $SCRIPT_NAME --help    — эта справка
 
 Сначала полностью закрой приложение через Cmd+Q.
@@ -34,7 +38,7 @@ else
 fi
 case "$ACTION" in
   --help|-h) usage; exit 0 ;;
-  menu|install|status|restore) ;;
+  menu|install|status|restore|auto-enable|auto-disable|auto-status|auto-check) ;;
   *) printf '[Ошибка] Неизвестное действие: %s\n' "$ACTION" >&2; usage; exit 1 ;;
 esac
 
@@ -126,7 +130,8 @@ with tarfile.open(archive, "r:gz") as source:
 manifest = json.loads((destination / "manifest.json").read_text(encoding="utf-8"))
 if manifest.get("repository") != repo or manifest.get("format") != 1:
     raise SystemExit("Ошибка: загружен пакет другого проекта.")
-for name in ("install.sh", "macos/patch.py", "macos/profiles.json", "macos/ru.json", "macos/ui-runtime.js"):
+for name in ("install.sh", "macos/patch.py", "macos/profiles.json", "macos/ru.json", "macos/ui-runtime.js",
+             "updater/manager.py", "updater/adapter.py", "updater/package.py", "updater/service.py"):
     if not (destination / name).is_file():
         raise SystemExit("Ошибка: в пакете не хватает файлов.")
 PYEXTRACT
@@ -163,9 +168,28 @@ if manifest.get("repository") != sys.argv[2] or manifest.get("format") != 1:
 PYMANIFEST
 
 PATCH="$ROOT/macos/patch.py"
+MANAGER="$ROOT/updater/manager.py"
+run_manager() {
+  local action="$1"
+  shift
+  "$PYTHON_BIN" "$MANAGER" "$action" "$@"
+}
+
 run_patch() {
   action="$1"
   shift
+  # --control-dir belongs only to the updater, including restore fallback.
+  local patch_args=()
+  while [ "$#" -gt 0 ]; do
+    if [ "$1" = --control-dir ]; then
+      if [ "$#" -lt 2 ]; then printf '[Ошибка] После --control-dir нужна папка.\n' >&2; return 1; fi
+      shift 2
+    else
+      patch_args+=("$1")
+      shift
+    fi
+  done
+  set -- "${patch_args[@]}"
   if [ "$action" = "status" ]; then
     "$PYTHON_BIN" "$PATCH" "$action" "$@"
     return $?
@@ -197,6 +221,32 @@ PYAPP
 perform_action() {
   action="$1"
   shift
+  case "$action" in
+    auto-enable)
+      local approved=0 item
+      for item in "$@"; do if [ "$item" = --approve-signature ]; then approved=1; fi; done
+      printf '\nАвтовосстановление будет проверять Claude каждые 2 минуты, только после выхода из приложения.\n'
+      printf 'Поддерживаемые новые сборки будут получать локальную подпись и исключение проверки библиотек.\n'
+      printf 'Возможны повторный вход и новые системные разрешения; исходный Claude сохранится для отката.\n'
+      if [ "$approved" -eq 0 ]; then
+        printf 'Включить автовосстановление с этими изменениями? Введи «да» или «нет»: '
+        if ! IFS= read -r consent; then printf '\n[Ошибка] Согласие не получено.\n' >&2; return 1; fi
+        case "$consent" in
+          да|Да|ДА|yes|YES|y|Y) ;;
+          *) printf '[i] Включение отменено.\n'; return 0 ;;
+        esac
+      fi
+      run_manager enable --approve-signature "$@"
+      return $? ;;
+    auto-disable) run_manager disable "$@"; return $? ;;
+    auto-status) run_manager status "$@"; return $? ;;
+    auto-check) run_manager check --manual "$@"; return $? ;;
+    restore)
+      if run_manager restore --manual "$@"; then return 0; else
+        local result=$?
+        if [ "$result" -ne 3 ]; then return "$result"; fi
+      fi ;;
+  esac
   if [ "$action" = "install" ] && [ "$REPO" = "claude-russian" ]; then
     printf '\nУстановленное приложение Claude будет изменено после полного резервного копирования.\n'
     printf 'Подпись Anthropic будет заменена локальной; ослабится проверка происхождения библиотек.\n'
@@ -235,6 +285,10 @@ while true; do
   printf ' 1) Установить русский интерфейс\n'
   printf ' 2) Статус / совместимость\n'
   printf ' 3) Откат\n'
+  printf ' 4) Включить автовосстановление после обновлений\n'
+  printf ' 5) Выключить автовосстановление\n'
+  printf ' 6) Статус автовосстановления\n'
+  printf ' 7) Проверить обновление сейчас\n'
   printf ' 0) Выход\n'
   printf 'Выбор: '
   if ! IFS= read -r choice; then printf '\n'; exit 0; fi
@@ -242,8 +296,12 @@ while true; do
     1) operation="install" ;;
     2) operation="status" ;;
     3) operation="restore" ;;
+    4) operation="auto-enable" ;;
+    5) operation="auto-disable" ;;
+    6) operation="auto-status" ;;
+    7) operation="auto-check" ;;
     0) exit 0 ;;
-    *) printf '[Ошибка] Выбери 1, 2, 3 или 0.\n' >&2; continue ;;
+    *) printf '[Ошибка] Выбери пункт от 0 до 7.\n' >&2; continue ;;
   esac
   if perform_action "$operation" "$@"; then
     :

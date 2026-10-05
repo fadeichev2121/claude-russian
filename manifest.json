@@ -1,7 +1,7 @@
 {
   "format": 1,
   "repository": "claude-russian",
-  "package_version": "1.2.1",
+  "package_version": "1.3.0",
   "platforms": {
     "macOS": [
       "1.46388.4",
@@ -50,5 +50,22 @@
     "tested_commit": "8d1921fd38d4335499a477fbe18fe087c0a3fe4c",
     "workflow_run": "https://github.com/fadeichev2121/claude-russian/actions/runs/37261832045",
     "report": "docs/verification/windows-linux-1.2.1.json"
+  },
+  "auto_update_api": 1,
+  "auto_reapply": {
+    "platforms": [
+      "macos",
+      "windows",
+      "linux"
+    ],
+    "enabled_by_default": false,
+    "scheduler_runtime_verified": false,
+    "future_versions_require_published_profile": true,
+    "fixture_verification": {
+      "status": "passed",
+      "tests": 74,
+      "host": "macos",
+      "report": "docs/verification/auto-reapply-1.3.0.json"
+    }
   }
 }

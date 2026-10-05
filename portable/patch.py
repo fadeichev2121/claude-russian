@@ -300,9 +300,12 @@ def require_closed(app):
     if SYSTEM == 'windows':
         command = "$ErrorActionPreference='Stop'; [Console]::OutputEncoding=[Text.UTF8Encoding]::new(); $p=@(Get-CimInstance Win32_Process | Select-Object ProcessId,Name,ExecutablePath); ConvertTo-Json -InputObject $p -Compress"
         result = subprocess.run(['powershell.exe', '-NoProfile', '-NonInteractive', '-Command', command],
-                                capture_output=True, encoding='utf-8', check=True)
+                                capture_output=True, encoding='utf-8', check=True, creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
         items = json.loads(result.stdout)
-        prefix = os.path.normcase(str(app) + os.sep)
+        # Squirrel can unpack the new app-* before the old app-* exits.
+        # Recheck the whole installation immediately before changing files.
+        process_root = app.parent if re.fullmatch(r'app-\d+(\.\d+)+', app.name) else app
+        prefix = os.path.normcase(str(process_root) + os.sep)
         updater = os.path.normcase(str(app.parent / 'Update.exe'))
         for item in items:
             executable = item.get('ExecutablePath')
