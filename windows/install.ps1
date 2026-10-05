@@ -7,6 +7,7 @@ param(
     [string]$AppPath,
     [Alias('state-dir')]
     [string]$StateDirectory,
+    [switch]$ApproveExeSignature,
     [switch]$Help
 )
 
@@ -28,6 +29,7 @@ function Show-Usage {
   .\install.ps1 -Help                 — справка
 
 Параметры: -AppPath ПАПКА, -StateDirectory ПАПКА.
+-ApproveExeSignature — явное согласие на изменение подписи EXE без вопроса; только для осознанного автоматизированного запуска.
 Нужны Windows, PowerShell 5.1+ и Python 3.9+.
 Поддерживается обычная установка EXE; MSIX / WindowsApps не поддерживаются.
 Сначала полностью закрой Claude и его обновление.
@@ -224,14 +226,16 @@ function Invoke-PatchAction([string]$Operation) {
         Write-Host 'Будут изменены app.asar, en-US.json и claude.exe; исходные три файла сохранятся для отката.'
         Write-Host 'Изменение ресурса EXE сделает цифровую подпись Authenticode Anthropic недействительной.'
         Write-Host 'Откат восстановит сохранённые исходные файлы, включая EXE с исходной подписью.'
-        if ([Console]::IsInputRedirected) {
-            Write-Host '[Ошибка] Для согласия запусти установку в интерактивном терминале.'
-            return 1
-        }
-        $answer = Read-Host 'Согласен изменить установленный Claude? Введи «да» или «нет»'
-        if ($answer.Trim().ToLowerInvariant() -notin @('да', 'yes', 'y')) {
-            Write-Host '[i] Установка отменена.'
-            return 0
+        if (-not $ApproveExeSignature) {
+            if ([Console]::IsInputRedirected) {
+                Write-Host '[Ошибка] Для согласия запусти установку в интерактивном терминале.'
+                return 1
+            }
+            $answer = Read-Host 'Согласен изменить установленный Claude? Введи «да» или «нет»'
+            if ($answer.Trim().ToLowerInvariant() -notin @('да', 'yes', 'y')) {
+                Write-Host '[i] Установка отменена.'
+                return 0
+            }
         }
         $arguments += '--approve-exe-signature'
     }

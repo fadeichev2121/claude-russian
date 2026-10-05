@@ -1,7 +1,7 @@
 {
   "format": 1,
   "repository": "claude-russian",
-  "package_version": "1.2.0",
+  "package_version": "1.2.1",
   "platforms": {
     "macOS": [
       "1.46388.4",
