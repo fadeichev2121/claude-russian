@@ -149,11 +149,16 @@ def extract(profile, fixture, folder):
     return app
 
 
-def launcher(app, state, action, shell=None, standalone=None):
+def launcher(app, state, action, shell=None, standalone=None, approve=False):
     if SYSTEM == 'linux':
         return ['bash', standalone or ROOT / 'linux/install.sh', action, '--app', app, '--state-dir', state]
-    return [shell or 'powershell.exe', '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File',
-            standalone or ROOT / 'windows/install.ps1', action, '-AppPath', app, '-StateDirectory', state]
+    command = [shell or 'powershell.exe', '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File',
+               standalone or ROOT / 'windows/install.ps1', action, '-AppPath', app, '-StateDirectory', state]
+    if approve:
+        if action != 'install':
+            raise ValueError('Signature approval applies only to installation')
+        command.append('-ApproveExeSignature')
+    return command
 
 
 def install(app, state):
@@ -311,19 +316,34 @@ def exercise(profile_key, profile, fixture, folder, report):
     assert (file_bytes(app), state_bytes(state)) == snapshot
     report['checks'].append('byte-identical-restore-and-idempotent-restore')
 
+    if SYSTEM == 'windows':
+        run(launcher(app, state, 'install', approve=True))
+        assert read_state(state)['phase'] == 'installed'
+        assert_translation(app, originals, profile, read_state(state))
+        run(launcher(app, state, 'restore'))
+        assert_original(app, originals, metadata)
+        report['checks'].append('public-windows-launcher-explicit-signature-opt-in-install-and-restore')
+
     standalone_dir = folder / 'standalone'
     standalone_dir.mkdir()
     source = ROOT / ('windows/install.ps1' if SYSTEM == 'windows' else 'linux/install.sh')
     standalone = standalone_dir / source.name
     shutil.copyfile(source, standalone)
     run(launcher(app, state, 'status', standalone=standalone))
-    install(app, state)
+    run(launcher(app, state, 'install', standalone=standalone, approve=SYSTEM == 'windows'))
+    assert read_state(state)['phase'] == 'installed'
+    assert_translation(app, originals, profile, read_state(state))
     run(launcher(app, state, 'restore', standalone=standalone))
     assert_original(app, originals, metadata)
-    report['checks'].append('standalone-download-bootstrap-status-and-restore')
+    report['checks'].append('standalone-download-bootstrap-status-install-and-restore')
     if SYSTEM == 'windows' and shutil.which('pwsh'):
         run(launcher(app, state, 'status', shell='pwsh', standalone=standalone))
-        report['checks'].append('powershell-7-standalone-bootstrap')
+        run(launcher(app, state, 'install', shell='pwsh', standalone=standalone, approve=True))
+        assert read_state(state)['phase'] == 'installed'
+        assert_translation(app, originals, profile, read_state(state))
+        run(launcher(app, state, 'restore', shell='pwsh', standalone=standalone))
+        assert_original(app, originals, metadata)
+        report['checks'].append('powershell-7-standalone-bootstrap-install-and-restore')
     if SYSTEM == 'linux':
         paths = [app, app / 'resources'] + [app / name for name in FILES] + [binary]
         try:

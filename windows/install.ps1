@@ -68,14 +68,26 @@ function Initialize-PrivateDirectory([string]$Path) {
     )
     $security.AddAccessRule($rule)
     if (Test-Path -LiteralPath $Path) {
-        $existing = [System.IO.Directory]::GetAccessControl($Path)
+        if ($PSVersionTable.PSVersion.Major -ge 6) {
+            $existing = [System.IO.FileSystemAclExtensions]::GetAccessControl([System.IO.DirectoryInfo]::new($Path))
+        } else {
+            $existing = [System.IO.Directory]::GetAccessControl($Path)
+        }
         if ($existing.GetOwner([System.Security.Principal.SecurityIdentifier]).Value -ne $sid.Value) {
             throw 'Папка загрузки принадлежит другому пользователю.'
         }
         # Restrict only this user's download directory, never the app's ACL.
-        [System.IO.Directory]::SetAccessControl($Path, $security)
+        if ($PSVersionTable.PSVersion.Major -ge 6) {
+            [System.IO.FileSystemAclExtensions]::SetAccessControl([System.IO.DirectoryInfo]::new($Path), $security)
+        } else {
+            [System.IO.Directory]::SetAccessControl($Path, $security)
+        }
     } else {
-        [void][System.IO.Directory]::CreateDirectory($Path, $security)
+        if ($PSVersionTable.PSVersion.Major -ge 6) {
+            [void][System.IO.FileSystemAclExtensions]::CreateDirectory($security, $Path)
+        } else {
+            [void][System.IO.Directory]::CreateDirectory($Path, $security)
+        }
     }
 }
 
