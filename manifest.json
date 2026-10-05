@@ -43,5 +43,12 @@
   "dictionary_entries": 3608,
   "native_catalog_entries": 642,
   "execution_verified": false,
-  "compatibility_as_of": "2026-10-04"
+  "compatibility_as_of": "2026-10-04",
+  "installer_verification": {
+    "status": "passed",
+    "native_profiles": 20,
+    "tested_commit": "8d1921fd38d4335499a477fbe18fe087c0a3fe4c",
+    "workflow_run": "https://github.com/fadeichev2121/claude-russian/actions/runs/37261832045",
+    "report": "docs/verification/windows-linux-1.2.1.json"
+  }
 }

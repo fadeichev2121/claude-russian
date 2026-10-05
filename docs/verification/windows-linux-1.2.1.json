@@ -1,0 +1,437 @@
+{
+  "package_version": "1.2.1",
+  "verified_at": "2026-10-05T04:10:58Z",
+  "commit": "8d1921fd38d4335499a477fbe18fe087c0a3fe4c",
+  "workflow_run": "https://github.com/fadeichev2121/claude-russian/actions/runs/37261832045",
+  "native_installer_profiles_passed": 20,
+  "app_executed": false,
+  "claude_login_tested": false,
+  "runners": [
+    "windows-2025",
+    "windows-11-arm",
+    "ubuntu-24.04",
+    "ubuntu-24.04-arm"
+  ],
+  "results": [
+    {
+      "profile": "linux-amd64-2.2553.0",
+      "runner_os": "linux",
+      "runner_arch": "x64",
+      "python_version": "3.13.15",
+      "checks": [
+        "verified-official-package-and-all-extracted-file-identities",
+        "install-original-with-translated-preloads-native-catalogue-and-valid-asar-integrity",
+        "idempotent-install-preserves-all-files-and-backup",
+        "translation-refresh-via-restore-reinstall-preserves-original-backups",
+        "tamper-refusal-preserves-every-app-file-and-state",
+        "corrupt-backup-refusal-preserves-every-app-file-and-state",
+        "byte-identical-restore-and-idempotent-restore",
+        "standalone-download-bootstrap-status-install-and-restore",
+        "root-owned-deb-files-sudo-install-restore-preserves-permissions-and-user-state"
+      ],
+      "app_executed": false,
+      "claude_login_tested": false,
+      "result": "success"
+    },
+    {
+      "profile": "linux-amd64-2.2553.1",
+      "runner_os": "linux",
+      "runner_arch": "x64",
+      "python_version": "3.13.15",
+      "checks": [
+        "verified-official-package-and-all-extracted-file-identities",
+        "install-original-with-translated-preloads-native-catalogue-and-valid-asar-integrity",
+        "idempotent-install-preserves-all-files-and-backup",
+        "translation-refresh-via-restore-reinstall-preserves-original-backups",
+        "tamper-refusal-preserves-every-app-file-and-state",
+        "corrupt-backup-refusal-preserves-every-app-file-and-state",
+        "byte-identical-restore-and-idempotent-restore",
+        "standalone-download-bootstrap-status-install-and-restore",
+        "root-owned-deb-files-sudo-install-restore-preserves-permissions-and-user-state"
+      ],
+      "app_executed": false,
+      "claude_login_tested": false,
+      "result": "success"
+    },
+    {
+      "profile": "linux-amd64-2.2553.13",
+      "runner_os": "linux",
+      "runner_arch": "x64",
+      "python_version": "3.13.15",
+      "checks": [
+        "verified-official-package-and-all-extracted-file-identities",
+        "install-original-with-translated-preloads-native-catalogue-and-valid-asar-integrity",
+        "idempotent-install-preserves-all-files-and-backup",
+        "translation-refresh-via-restore-reinstall-preserves-original-backups",
+        "tamper-refusal-preserves-every-app-file-and-state",
+        "corrupt-backup-refusal-preserves-every-app-file-and-state",
+        "byte-identical-restore-and-idempotent-restore",
+        "standalone-download-bootstrap-status-install-and-restore",
+        "root-owned-deb-files-sudo-install-restore-preserves-permissions-and-user-state"
+      ],
+      "app_executed": false,
+      "claude_login_tested": false,
+      "result": "success"
+    },
+    {
+      "profile": "linux-amd64-2.7032.0",
+      "runner_os": "linux",
+      "runner_arch": "x64",
+      "python_version": "3.13.15",
+      "checks": [
+        "verified-official-package-and-all-extracted-file-identities",
+        "install-original-with-translated-preloads-native-catalogue-and-valid-asar-integrity",
+        "idempotent-install-preserves-all-files-and-backup",
+        "translation-refresh-via-restore-reinstall-preserves-original-backups",
+        "tamper-refusal-preserves-every-app-file-and-state",
+        "corrupt-backup-refusal-preserves-every-app-file-and-state",
+        "byte-identical-restore-and-idempotent-restore",
+        "standalone-download-bootstrap-status-install-and-restore",
+        "root-owned-deb-files-sudo-install-restore-preserves-permissions-and-user-state"
+      ],
+      "app_executed": false,
+      "claude_login_tested": false,
+      "result": "success"
+    },
+    {
+      "profile": "linux-amd64-2.9939.4",
+      "runner_os": "linux",
+      "runner_arch": "x64",
+      "python_version": "3.13.15",
+      "checks": [
+        "verified-official-package-and-all-extracted-file-identities",
+        "install-original-with-translated-preloads-native-catalogue-and-valid-asar-integrity",
+        "idempotent-install-preserves-all-files-and-backup",
+        "translation-refresh-via-restore-reinstall-preserves-original-backups",
+        "tamper-refusal-preserves-every-app-file-and-state",
+        "corrupt-backup-refusal-preserves-every-app-file-and-state",
+        "byte-identical-restore-and-idempotent-restore",
+        "standalone-download-bootstrap-status-install-and-restore",
+        "root-owned-deb-files-sudo-install-restore-preserves-permissions-and-user-state"
+      ],
+      "app_executed": false,
+      "claude_login_tested": false,
+      "result": "success"
+    },
+    {
+      "profile": "linux-arm64-2.2553.0",
+      "runner_os": "linux",
+      "runner_arch": "arm64",
+      "python_version": "3.13.15",
+      "checks": [
+        "verified-official-package-and-all-extracted-file-identities",
+        "install-original-with-translated-preloads-native-catalogue-and-valid-asar-integrity",
+        "idempotent-install-preserves-all-files-and-backup",
+        "translation-refresh-via-restore-reinstall-preserves-original-backups",
+        "tamper-refusal-preserves-every-app-file-and-state",
+        "corrupt-backup-refusal-preserves-every-app-file-and-state",
+        "byte-identical-restore-and-idempotent-restore",
+        "standalone-download-bootstrap-status-install-and-restore",
+        "root-owned-deb-files-sudo-install-restore-preserves-permissions-and-user-state"
+      ],
+      "app_executed": false,
+      "claude_login_tested": false,
+      "result": "success"
+    },
+    {
+      "profile": "linux-arm64-2.2553.1",
+      "runner_os": "linux",
+      "runner_arch": "arm64",
+      "python_version": "3.13.15",
+      "checks": [
+        "verified-official-package-and-all-extracted-file-identities",
+        "install-original-with-translated-preloads-native-catalogue-and-valid-asar-integrity",
+        "idempotent-install-preserves-all-files-and-backup",
+        "translation-refresh-via-restore-reinstall-preserves-original-backups",
+        "tamper-refusal-preserves-every-app-file-and-state",
+        "corrupt-backup-refusal-preserves-every-app-file-and-state",
+        "byte-identical-restore-and-idempotent-restore",
+        "standalone-download-bootstrap-status-install-and-restore",
+        "root-owned-deb-files-sudo-install-restore-preserves-permissions-and-user-state"
+      ],
+      "app_executed": false,
+      "claude_login_tested": false,
+      "result": "success"
+    },
+    {
+      "profile": "linux-arm64-2.2553.13",
+      "runner_os": "linux",
+      "runner_arch": "arm64",
+      "python_version": "3.13.15",
+      "checks": [
+        "verified-official-package-and-all-extracted-file-identities",
+        "install-original-with-translated-preloads-native-catalogue-and-valid-asar-integrity",
+        "idempotent-install-preserves-all-files-and-backup",
+        "translation-refresh-via-restore-reinstall-preserves-original-backups",
+        "tamper-refusal-preserves-every-app-file-and-state",
+        "corrupt-backup-refusal-preserves-every-app-file-and-state",
+        "byte-identical-restore-and-idempotent-restore",
+        "standalone-download-bootstrap-status-install-and-restore",
+        "root-owned-deb-files-sudo-install-restore-preserves-permissions-and-user-state"
+      ],
+      "app_executed": false,
+      "claude_login_tested": false,
+      "result": "success"
+    },
+    {
+      "profile": "linux-arm64-2.7032.0",
+      "runner_os": "linux",
+      "runner_arch": "arm64",
+      "python_version": "3.13.15",
+      "checks": [
+        "verified-official-package-and-all-extracted-file-identities",
+        "install-original-with-translated-preloads-native-catalogue-and-valid-asar-integrity",
+        "idempotent-install-preserves-all-files-and-backup",
+        "translation-refresh-via-restore-reinstall-preserves-original-backups",
+        "tamper-refusal-preserves-every-app-file-and-state",
+        "corrupt-backup-refusal-preserves-every-app-file-and-state",
+        "byte-identical-restore-and-idempotent-restore",
+        "standalone-download-bootstrap-status-install-and-restore",
+        "root-owned-deb-files-sudo-install-restore-preserves-permissions-and-user-state"
+      ],
+      "app_executed": false,
+      "claude_login_tested": false,
+      "result": "success"
+    },
+    {
+      "profile": "linux-arm64-2.9939.4",
+      "runner_os": "linux",
+      "runner_arch": "arm64",
+      "python_version": "3.13.15",
+      "checks": [
+        "verified-official-package-and-all-extracted-file-identities",
+        "install-original-with-translated-preloads-native-catalogue-and-valid-asar-integrity",
+        "idempotent-install-preserves-all-files-and-backup",
+        "translation-refresh-via-restore-reinstall-preserves-original-backups",
+        "tamper-refusal-preserves-every-app-file-and-state",
+        "corrupt-backup-refusal-preserves-every-app-file-and-state",
+        "byte-identical-restore-and-idempotent-restore",
+        "standalone-download-bootstrap-status-install-and-restore",
+        "root-owned-deb-files-sudo-install-restore-preserves-permissions-and-user-state"
+      ],
+      "app_executed": false,
+      "claude_login_tested": false,
+      "result": "success"
+    },
+    {
+      "profile": "windows-arm64-2.16120.0",
+      "runner_os": "windows",
+      "runner_arch": "arm64",
+      "python_version": "3.13.15",
+      "checks": [
+        "verified-official-package-and-all-extracted-file-identities",
+        "redirected-install-refuses-without-signature-consent",
+        "install-original-with-translated-preloads-native-catalogue-and-valid-asar-integrity",
+        "idempotent-install-preserves-all-files-and-backup",
+        "translation-refresh-via-restore-reinstall-preserves-original-backups",
+        "tamper-refusal-preserves-every-app-file-and-state",
+        "corrupt-backup-refusal-preserves-every-app-file-and-state",
+        "byte-identical-restore-and-idempotent-restore",
+        "public-windows-launcher-explicit-signature-opt-in-install-and-restore",
+        "standalone-download-bootstrap-status-install-and-restore",
+        "powershell-7-standalone-bootstrap-install-and-restore"
+      ],
+      "app_executed": false,
+      "claude_login_tested": false,
+      "result": "success"
+    },
+    {
+      "profile": "windows-arm64-2.19675.0",
+      "runner_os": "windows",
+      "runner_arch": "arm64",
+      "python_version": "3.13.15",
+      "checks": [
+        "verified-official-package-and-all-extracted-file-identities",
+        "redirected-install-refuses-without-signature-consent",
+        "install-original-with-translated-preloads-native-catalogue-and-valid-asar-integrity",
+        "idempotent-install-preserves-all-files-and-backup",
+        "translation-refresh-via-restore-reinstall-preserves-original-backups",
+        "tamper-refusal-preserves-every-app-file-and-state",
+        "corrupt-backup-refusal-preserves-every-app-file-and-state",
+        "byte-identical-restore-and-idempotent-restore",
+        "public-windows-launcher-explicit-signature-opt-in-install-and-restore",
+        "standalone-download-bootstrap-status-install-and-restore",
+        "powershell-7-standalone-bootstrap-install-and-restore"
+      ],
+      "app_executed": false,
+      "claude_login_tested": false,
+      "result": "success"
+    },
+    {
+      "profile": "windows-arm64-2.7032.0",
+      "runner_os": "windows",
+      "runner_arch": "arm64",
+      "python_version": "3.13.15",
+      "checks": [
+        "verified-official-package-and-all-extracted-file-identities",
+        "redirected-install-refuses-without-signature-consent",
+        "install-original-with-translated-preloads-native-catalogue-and-valid-asar-integrity",
+        "idempotent-install-preserves-all-files-and-backup",
+        "translation-refresh-via-restore-reinstall-preserves-original-backups",
+        "tamper-refusal-preserves-every-app-file-and-state",
+        "corrupt-backup-refusal-preserves-every-app-file-and-state",
+        "byte-identical-restore-and-idempotent-restore",
+        "public-windows-launcher-explicit-signature-opt-in-install-and-restore",
+        "standalone-download-bootstrap-status-install-and-restore",
+        "powershell-7-standalone-bootstrap-install-and-restore"
+      ],
+      "app_executed": false,
+      "claude_login_tested": false,
+      "result": "success"
+    },
+    {
+      "profile": "windows-arm64-2.9939.2",
+      "runner_os": "windows",
+      "runner_arch": "arm64",
+      "python_version": "3.13.15",
+      "checks": [
+        "verified-official-package-and-all-extracted-file-identities",
+        "redirected-install-refuses-without-signature-consent",
+        "install-original-with-translated-preloads-native-catalogue-and-valid-asar-integrity",
+        "idempotent-install-preserves-all-files-and-backup",
+        "translation-refresh-via-restore-reinstall-preserves-original-backups",
+        "tamper-refusal-preserves-every-app-file-and-state",
+        "corrupt-backup-refusal-preserves-every-app-file-and-state",
+        "byte-identical-restore-and-idempotent-restore",
+        "public-windows-launcher-explicit-signature-opt-in-install-and-restore",
+        "standalone-download-bootstrap-status-install-and-restore",
+        "powershell-7-standalone-bootstrap-install-and-restore"
+      ],
+      "app_executed": false,
+      "claude_login_tested": false,
+      "result": "success"
+    },
+    {
+      "profile": "windows-arm64-2.9939.4",
+      "runner_os": "windows",
+      "runner_arch": "arm64",
+      "python_version": "3.13.15",
+      "checks": [
+        "verified-official-package-and-all-extracted-file-identities",
+        "redirected-install-refuses-without-signature-consent",
+        "install-original-with-translated-preloads-native-catalogue-and-valid-asar-integrity",
+        "idempotent-install-preserves-all-files-and-backup",
+        "translation-refresh-via-restore-reinstall-preserves-original-backups",
+        "tamper-refusal-preserves-every-app-file-and-state",
+        "corrupt-backup-refusal-preserves-every-app-file-and-state",
+        "byte-identical-restore-and-idempotent-restore",
+        "public-windows-launcher-explicit-signature-opt-in-install-and-restore",
+        "standalone-download-bootstrap-status-install-and-restore",
+        "powershell-7-standalone-bootstrap-install-and-restore"
+      ],
+      "app_executed": false,
+      "claude_login_tested": false,
+      "result": "success"
+    },
+    {
+      "profile": "windows-x64-2.16120.0",
+      "runner_os": "windows",
+      "runner_arch": "x64",
+      "python_version": "3.13.15",
+      "checks": [
+        "verified-official-package-and-all-extracted-file-identities",
+        "redirected-install-refuses-without-signature-consent",
+        "install-original-with-translated-preloads-native-catalogue-and-valid-asar-integrity",
+        "idempotent-install-preserves-all-files-and-backup",
+        "translation-refresh-via-restore-reinstall-preserves-original-backups",
+        "tamper-refusal-preserves-every-app-file-and-state",
+        "corrupt-backup-refusal-preserves-every-app-file-and-state",
+        "byte-identical-restore-and-idempotent-restore",
+        "public-windows-launcher-explicit-signature-opt-in-install-and-restore",
+        "standalone-download-bootstrap-status-install-and-restore",
+        "powershell-7-standalone-bootstrap-install-and-restore"
+      ],
+      "app_executed": false,
+      "claude_login_tested": false,
+      "result": "success"
+    },
+    {
+      "profile": "windows-x64-2.19675.0",
+      "runner_os": "windows",
+      "runner_arch": "x64",
+      "python_version": "3.13.15",
+      "checks": [
+        "verified-official-package-and-all-extracted-file-identities",
+        "redirected-install-refuses-without-signature-consent",
+        "install-original-with-translated-preloads-native-catalogue-and-valid-asar-integrity",
+        "idempotent-install-preserves-all-files-and-backup",
+        "translation-refresh-via-restore-reinstall-preserves-original-backups",
+        "tamper-refusal-preserves-every-app-file-and-state",
+        "corrupt-backup-refusal-preserves-every-app-file-and-state",
+        "byte-identical-restore-and-idempotent-restore",
+        "public-windows-launcher-explicit-signature-opt-in-install-and-restore",
+        "standalone-download-bootstrap-status-install-and-restore",
+        "powershell-7-standalone-bootstrap-install-and-restore"
+      ],
+      "app_executed": false,
+      "claude_login_tested": false,
+      "result": "success"
+    },
+    {
+      "profile": "windows-x64-2.7032.0",
+      "runner_os": "windows",
+      "runner_arch": "x64",
+      "python_version": "3.13.15",
+      "checks": [
+        "verified-official-package-and-all-extracted-file-identities",
+        "redirected-install-refuses-without-signature-consent",
+        "install-original-with-translated-preloads-native-catalogue-and-valid-asar-integrity",
+        "idempotent-install-preserves-all-files-and-backup",
+        "translation-refresh-via-restore-reinstall-preserves-original-backups",
+        "tamper-refusal-preserves-every-app-file-and-state",
+        "corrupt-backup-refusal-preserves-every-app-file-and-state",
+        "byte-identical-restore-and-idempotent-restore",
+        "public-windows-launcher-explicit-signature-opt-in-install-and-restore",
+        "standalone-download-bootstrap-status-install-and-restore",
+        "powershell-7-standalone-bootstrap-install-and-restore"
+      ],
+      "app_executed": false,
+      "claude_login_tested": false,
+      "result": "success"
+    },
+    {
+      "profile": "windows-x64-2.9939.2",
+      "runner_os": "windows",
+      "runner_arch": "x64",
+      "python_version": "3.13.15",
+      "checks": [
+        "verified-official-package-and-all-extracted-file-identities",
+        "redirected-install-refuses-without-signature-consent",
+        "install-original-with-translated-preloads-native-catalogue-and-valid-asar-integrity",
+        "idempotent-install-preserves-all-files-and-backup",
+        "translation-refresh-via-restore-reinstall-preserves-original-backups",
+        "tamper-refusal-preserves-every-app-file-and-state",
+        "corrupt-backup-refusal-preserves-every-app-file-and-state",
+        "byte-identical-restore-and-idempotent-restore",
+        "public-windows-launcher-explicit-signature-opt-in-install-and-restore",
+        "standalone-download-bootstrap-status-install-and-restore",
+        "powershell-7-standalone-bootstrap-install-and-restore"
+      ],
+      "app_executed": false,
+      "claude_login_tested": false,
+      "result": "success"
+    },
+    {
+      "profile": "windows-x64-2.9939.4",
+      "runner_os": "windows",
+      "runner_arch": "x64",
+      "python_version": "3.13.15",
+      "checks": [
+        "verified-official-package-and-all-extracted-file-identities",
+        "redirected-install-refuses-without-signature-consent",
+        "install-original-with-translated-preloads-native-catalogue-and-valid-asar-integrity",
+        "idempotent-install-preserves-all-files-and-backup",
+        "translation-refresh-via-restore-reinstall-preserves-original-backups",
+        "tamper-refusal-preserves-every-app-file-and-state",
+        "corrupt-backup-refusal-preserves-every-app-file-and-state",
+        "byte-identical-restore-and-idempotent-restore",
+        "public-windows-launcher-explicit-signature-opt-in-install-and-restore",
+        "standalone-download-bootstrap-status-install-and-restore",
+        "powershell-7-standalone-bootstrap-install-and-restore"
+      ],
+      "app_executed": false,
+      "claude_login_tested": false,
+      "result": "success"
+    }
+  ]
+}
