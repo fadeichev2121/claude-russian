@@ -1,0 +1,94 @@
+name: Windows and Linux installer checks
+on:
+  workflow_dispatch:
+    inputs:
+      smoke:
+        description: Check only the current release on the four native systems
+        type: boolean
+        default: false
+permissions:
+  contents: read
+jobs:
+  targets:
+    runs-on: ubuntu-24.04
+    outputs:
+      matrix: ${{ steps.profiles.outputs.matrix }}
+    steps:
+      - id: profiles
+        env:
+          SMOKE: ${{ inputs.smoke }}
+        run: |
+          python3 - <<'PYMATRIX'
+          import json, os
+          targets = [{'profile': 'windows-x64-2.19675.0', 'runner': 'windows-2025', 'current': True},
+           {'profile': 'windows-arm64-2.19675.0',
+            'runner': 'windows-11-arm',
+            'current': True},
+           {'profile': 'linux-amd64-2.9939.4', 'runner': 'ubuntu-24.04', 'current': True},
+           {'profile': 'linux-arm64-2.9939.4', 'runner': 'ubuntu-24.04-arm', 'current': True},
+           {'profile': 'windows-x64-2.16120.0', 'runner': 'windows-2025', 'current': False},
+           {'profile': 'windows-x64-2.9939.4', 'runner': 'windows-2025', 'current': False},
+           {'profile': 'windows-x64-2.9939.2', 'runner': 'windows-2025', 'current': False},
+           {'profile': 'windows-x64-2.7032.0', 'runner': 'windows-2025', 'current': False},
+           {'profile': 'windows-arm64-2.16120.0',
+            'runner': 'windows-11-arm',
+            'current': False},
+           {'profile': 'windows-arm64-2.9939.4',
+            'runner': 'windows-11-arm',
+            'current': False},
+           {'profile': 'windows-arm64-2.9939.2',
+            'runner': 'windows-11-arm',
+            'current': False},
+           {'profile': 'windows-arm64-2.7032.0',
+            'runner': 'windows-11-arm',
+            'current': False},
+           {'profile': 'linux-amd64-2.7032.0', 'runner': 'ubuntu-24.04', 'current': False},
+           {'profile': 'linux-amd64-2.2553.13', 'runner': 'ubuntu-24.04', 'current': False},
+           {'profile': 'linux-amd64-2.2553.1', 'runner': 'ubuntu-24.04', 'current': False},
+           {'profile': 'linux-amd64-2.2553.0', 'runner': 'ubuntu-24.04', 'current': False},
+           {'profile': 'linux-arm64-2.7032.0',
+            'runner': 'ubuntu-24.04-arm',
+            'current': False},
+           {'profile': 'linux-arm64-2.2553.13',
+            'runner': 'ubuntu-24.04-arm',
+            'current': False},
+           {'profile': 'linux-arm64-2.2553.1',
+            'runner': 'ubuntu-24.04-arm',
+            'current': False},
+           {'profile': 'linux-arm64-2.2553.0',
+            'runner': 'ubuntu-24.04-arm',
+            'current': False}]
+          if os.environ['SMOKE'] == 'true':
+              targets = [target for target in targets if target['current']]
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              output.write('matrix=' + json.dumps({'include': targets}) + '\n')
+          PYMATRIX
+  installer:
+    needs: targets
+    name: ${{ matrix.profile }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix: ${{ fromJSON(needs.targets.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.13'
+      - name: Check native installer lifecycle against official files
+        run: python tests/portable_integration.py --profile ${{ matrix.profile }}
+        env:
+          PYTHONIOENCODING: utf-8
+          PYTHONUTF8: '1'
+      - name: Keep the text-only verification report
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: checks-${{ matrix.profile }}
+          path: test-results/*.json
+          if-no-files-found: warn
+          retention-days: 7
